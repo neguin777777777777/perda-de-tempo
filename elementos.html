@@ -334,11 +334,11 @@
 
         .search-container {
             display: flex;
-            align-items: right;
+            align-items: center;
         }
 
         .search-box {
-            width: 400px;
+            width: 200px;
             padding: 8px;
             border: none;
             border-radius: 4px;
@@ -382,10 +382,78 @@
     background-color: rgba(255, 255, 255, 0); /* Totalmente transparente */
     opacity: 0.0; /* Deixa o conteúdo meio transparente (0% de opacidade) */
 }
-    
+ /* Estilo do modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4); /* Sombra */
+}
+
+.modal-content {
+  background-color: var(--background-modal);
+  color: var(--text-color-modal);
+  margin: auto;
+  padding: 20px;
+  border: 1px solid var(--border-color-modal);
+  width: 50%;
+  border-radius: 10px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.close {
+  color: var(--close-button-color);
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: var(--close-hover-color);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Variáveis para Modo Claro */
+body.light-mode {
+  --background-modal: #ffffff;
+  --text-color-modal: #000000;
+  --border-color-modal: #cccccc;
+  --close-button-color: #aaa;
+  --close-hover-color: #000;
+}
+
+/* Variáveis para Modo Escuro */
+body.dark-mode {
+  --background-modal: #333333;
+  --text-color-modal: #ffffff;
+  --border-color-modal: #555555;
+  --close-button-color: #fff;
+  --close-hover-color: #ff5555;
+}
+
+
     </style>
 </head>
-
+<div id="elementModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="element-name"></h2>
+      <p>Número Atômico: <span id="atomic-number"></span></p>
+      <p>Peso Atômico: <span id="atomic-weight"></span></p>
+      <p id="element-description"></p> <!-- Área para descrição -->
+    </div>
+  </div>
+  
+  
+  
 <body class="light-mode">
     <header>
         <div class="logo">
@@ -1344,9 +1412,6 @@
                         </ul>
                     </div>
                     <button id="show-all">Mostrar Todos</button>
-                    <div>
-                    <p><a href="sobre os elementos.html">Explicação!</a></p>
-                    </div>
                 </div>
                 <div class="tabela">
                     <!-- Coloque aqui a tabela periódica existente -->
@@ -1443,6 +1508,157 @@ document.getElementById('search-box').addEventListener('keyup', function () {
         empty.style.display = query.length > 0 ? 'none' : 'block'; // Mostra ou esconde dependendo da pesquisa
     });
 });
+
+   
+
+
+
+// Dados dos elementos com descrições
+const elementDescriptions = {
+  "Hidrogênio": "O Hidrogênio é o elemento químico mais leve e abundante no universo. É essencial na formação de estrelas e é usado como combustível em reações de fusão nuclear.",
+  "Hélio": "O Hélio é o segundo elemento mais abundante no universo e é usado em balões e como gás de proteção devido à sua inércia química.",
+  "Lítio": "O Lítio é usado principalmente em baterias recarregáveis devido à sua excelente capacidade de armazenamento de energia.",
+  "Berílio": "O Berílio é um metal leve e duro, usado em ligas metálicas para fortalecer outros metais sem aumentar o peso.",
+  "Boro": "O Boro é um metaloide usado em semicondutores e fibras de vidro, além de estar presente em compostos essenciais para plantas.",
+  "Carbono": "O Carbono é a base da vida, formando a estrutura fundamental de todas as moléculas orgânicas, incluindo o DNA e as proteínas.",
+  "Nitrogênio": "O Nitrogênio constitui 78% da atmosfera terrestre e é um componente essencial das proteínas e do DNA.",
+  "Oxigênio": "O Oxigênio é necessário para a respiração celular e é o elemento mais abundante na crosta terrestre.",
+  "Flúor": "O Flúor é um halogênio usado principalmente em produtos dentários para prevenir cáries.",
+  "Neônio": "O Neônio é um gás nobre que emite luz brilhante quando eletrificado, sendo muito utilizado em sinais luminosos.",
+  "Sódio": "O Sódio é essencial para o equilíbrio de fluidos no corpo humano e é amplamente utilizado na forma de sal (NaCl).",
+  "Magnésio": "O Magnésio é necessário para mais de 300 reações bioquímicas no corpo humano e é usado em ligas leves para a indústria aeroespacial.",
+  "Alumínio": "O Alumínio é um metal leve e resistente à corrosão, usado em embalagens, construção civil e transporte.",
+  "Silício": "O Silício é amplamente usado na fabricação de semicondutores e na produção de vidro.",
+  "Fósforo": "O Fósforo é essencial para os seres vivos e é usado em fertilizantes e explosivos.",
+  "Enxofre": "O Enxofre é usado na produção de ácido sulfúrico e está presente em aminoácidos essenciais para a vida.",
+  "Cloro": "O Cloro é usado como desinfetante em tratamentos de água e na fabricação de PVC.",
+  "Argônio": "O Argônio é um gás nobre inerte, usado em lâmpadas incandescentes e em processos de soldagem.",
+  "Potássio": "O Potássio é essencial para a função celular e é amplamente usado em fertilizantes.",
+  "Cálcio": "O Cálcio é necessário para a formação de ossos e dentes, além de ser usado na produção de cimento.",
+  "Escândio": "O Escândio é um metal raro usado principalmente em ligas de alumínio para a fabricação de componentes leves.",
+  "Titânio": "O Titânio é um metal forte e leve, resistente à corrosão, usado em próteses e na construção de aeronaves.",
+  "Vanádio": "O Vanádio é usado principalmente para produzir ligas de aço de alta resistência.",
+  "Cromo": "O Cromo é utilizado no processo de cromagem para proteção contra corrosão e na produção de aços inoxidáveis.",
+  "Manganês": "O Manganês é um elemento crucial para a produção de aço e ferro, além de ser importante na biologia humana.",
+  "Ferro": "O Ferro é o principal componente do aço e é o metal mais amplamente utilizado no mundo.",
+  "Cobalto": "O Cobalto é usado em ligas metálicas e em baterias de íon de lítio, além de ser importante para a saúde humana.",
+  "Níquel": "O Níquel é amplamente usado em ligas resistentes à corrosão e na fabricação de moedas.",
+  "Cobre": "O Cobre é amplamente utilizado em sistemas elétricos e em ligas metálicas como o bronze.",
+  "Zinco": "O Zinco é usado principalmente para galvanizar o aço, prevenindo a corrosão, e também em ligas como o latão.",
+  "Gálio": "O Gálio é usado em eletrônica e em dispositivos semicondutores como LEDs.",
+  "Germânio": "O Germânio é usado em eletrônica, especialmente em transistores e fibra ótica.",
+  "Arsênio": "O Arsênio é usado principalmente em ligas de chumbo e em semicondutores.",
+  "Selênio": "O Selênio é usado na fabricação de células solares e na indústria de vidro.",
+  "Bromo": "O Bromo é usado como retardador de chama e na purificação de água de piscinas.",
+  "Criptônio": "O Criptônio é utilizado em iluminação fluorescente e em fotografia de alta velocidade.",
+  "Rubídio": "O Rubídio é usado em relógios atômicos e em pesquisas científicas.",
+  "Estrôncio": "O Estrôncio é utilizado em fogos de artifício e na produção de ímãs permanentes.",
+  "Ítrio": "O Ítrio é usado em LEDs e em materiais supercondutores.",
+  "Zircônio": "O Zircônio é usado em revestimentos de reatores nucleares e em joias como substituto do diamante.",
+  "Nióbio": "O Nióbio é usado para melhorar a resistência do aço e em supercondutores.",
+  "Molibdênio": "O Molibdênio é usado para aumentar a resistência ao calor de ligas metálicas.",
+  "Tecnécio": "O Tecnécio é utilizado em medicina nuclear para diagnósticos de imagem.",
+  "Rutênio": "O Rutênio é usado em ligas resistentes à corrosão e em eletrônica.",
+  "Ródio": "O Ródio é usado em catalisadores automotivos e em revestimentos de jóias.",
+  "Paládio": "O Paládio é usado em catalisadores automotivos e em eletrônicos.",
+  "Prata": "A Prata é usada em joias, fotografia, eletrônica e como condutor térmico.",
+  "Cádmio": "O Cádmio é utilizado em baterias e como pigmento.",
+  "Índio": "O Índio é utilizado em telas de LCD e em semicondutores.",
+  "Estanho": "O Estanho é amplamente utilizado em soldas e na produção de ligas como o bronze.",
+  "Antimônio": "O Antimônio é utilizado em retardadores de chama e na produção de baterias.",
+  "Telúrio": "O Telúrio é utilizado em ligas metálicas e em painéis solares.",
+  "Iodo": "O Iodo é essencial para a função da tireoide e é utilizado como desinfetante.",
+  "Xenônio": "O Xenônio é utilizado em lâmpadas de alta intensidade e em anestésicos.",
+  "Césio": "O Césio é utilizado em relógios atômicos de alta precisão.",
+  "Bário": "O Bário é utilizado em radiografias de contraste e em fogos de artifício.",
+  "Lantânio": "O Lantânio é usado em catalisadores automotivos e em lentes de câmeras.",
+  "Cério": "O Cério é usado em catalisadores automotivos e em polidores de vidro.",
+  "Praseodímio": "O Praseodímio é utilizado em ímãs de alta resistência.",
+  "Neodímio": "O Neodímio é utilizado em ímãs permanentes, usados em motores elétricos e discos rígidos.",
+  "Promécio": "O Promécio é usado em fontes de luz em sinais e instrumentos.",
+  "Samário": "O Samário é usado em ímãs de alta resistência e em reatores nucleares.",
+  "Európio": "O Európio é utilizado em fósforos para televisores e lâmpadas fluorescentes.",
+  "Gadolínio": "O Gadolínio é utilizado em dispositivos de imagem por ressonância magnética (MRI).",
+  "Térbio": "O Térbio é usado em lâmpadas fluorescentes e em ímãs de terras raras.",
+  "Disprósio": "O Disprósio é usado em ímãs de terras raras e em lasers.",
+  "Hólmio": "O Hólmio é usado em ímãs e em dispositivos de ressonância magnética.",
+  "Érbio": "O Érbio é usado em fibras ópticas e em lasers médicos.",
+  "Túlio": "O Túlio é usado em lasers e em equipamentos médicos.",
+  "Itérbio": "O Itérbio é utilizado em lasers e em dispositivos de ressonância magnética.",
+  "Lutécio": "O Lutécio é usado em detectores de radiação e em catalisadores de craqueamento.",
+  "Frâncio": "O Frâncio é extremamente raro e é utilizado apenas para pesquisa científica.",
+  "Rádio": "O Rádio foi utilizado em tratamentos contra câncer, mas foi substituído por outros elementos menos perigosos.",
+  "Actínio": "O Actínio é usado em geradores de nêutrons e em terapias anticâncer.",
+  "Tório": "O Tório é utilizado em reatores nucleares e em ligas metálicas.",
+  "Protactínio": "O Protactínio é utilizado em pesquisas científicas sobre reatores nucleares.",
+  "Urânio": "O Urânio é utilizado como combustível em reatores nucleares e em armas nucleares.",
+  "Neptúnio": "O Neptúnio é utilizado em detectores de nêutrons e em pesquisas científicas.",
+  "Plutônio": "O Plutônio é utilizado em reatores nucleares e em armas nucleares.",
+  "Amerício": "O Amerício é utilizado em detectores de fumaça e em geradores de energia nuclear.",
+  "Cúrio": "O Cúrio é utilizado em geradores de energia em espaçonaves.",
+  "Berquélio": "O Berquélio é utilizado em pesquisas científicas sobre elementos transurânicos.",
+  "Califórnio": "O Califórnio é utilizado em geradores de nêutrons e em tratamentos contra câncer.",
+  "Einsteinio": "O Einsteinio é utilizado em pesquisas científicas sobre a estrutura dos átomos.",
+  "Férmio": "O Férmio é utilizado apenas em pesquisas científicas devido à sua raridade.",
+  "Mendelévio": "O Mendelévio é utilizado em estudos científicos sobre transmutação de elementos.",
+  "Nobélio": "O Nobélio é utilizado apenas para pesquisa científica devido à sua curta meia-vida.",
+  "Laurêncio": "O Laurêncio é um elemento artificial utilizado em pesquisas sobre elementos superpesados.",
+  "Rutherfórdio": "O Rutherfórdio é um elemento artificial utilizado em pesquisas científicas.",
+  "Dúbnio": "O Dúbnio é utilizado em pesquisas científicas sobre elementos superpesados.",
+  "Seabórgio": "O Seabórgio é utilizado apenas em pesquisas científicas devido à sua instabilidade.",
+  "Bóhrio": "O Bóhrio é utilizado em pesquisas científicas sobre elementos pesados.",
+  "Hássio": "O Hássio é utilizado em pesquisas científicas sobre a estrutura atômica.",
+  "Meitnério": "O Meitnério é um elemento instável utilizado apenas em pesquisa científica.",
+  "Darmstádtio": "O Darmstádtio é utilizado em pesquisas científicas sobre elementos superpesados.",
+  "Roentgênio": "O Roentgênio é um elemento instável utilizado em estudos de elementos pesados.",
+  "Copernício": "O Copernício é utilizado em estudos sobre a estrutura dos elementos superpesados.",
+  "Nihônio": "O Nihônio é um elemento artificial que está sendo estudado para entender mais sobre os elementos superpesados.",
+  "Fleróvio": "O Fleróvio é um elemento sintético instável, utilizado apenas em pesquisas científicas.",
+  "Moscóvio": "O Moscóvio é um elemento artificial utilizado em pesquisas sobre elementos pesados.",
+  "Livermório": "O Livermório é um elemento altamente instável utilizado apenas para pesquisa científica.",
+  "Tenessino": "O Tenessino é um elemento recém-descoberto utilizado em estudos sobre elementos superpesados.",
+  "Oganessônio": "O Oganessônio é o elemento mais pesado da tabela periódica e é utilizado em pesquisas científicas."
+  
+
+};
+
+// Seleciona o modal e o botão de fechar
+const modal = document.getElementById("elementModal");
+const span = document.getElementsByClassName("close")[0];
+
+// Adiciona evento de clique para cada elemento
+document.querySelectorAll('.element').forEach(el => {
+  el.addEventListener('click', function() {
+    const elementName = this.querySelector('.element-name').textContent;
+    const atomicNumber = this.querySelector('.atomic-number').textContent;
+    const atomicWeight = this.querySelector('.atomic-weight').textContent;
+
+    // Preenche os dados no modal
+    document.getElementById('element-name').textContent = elementName;
+    document.getElementById('atomic-number').textContent = atomicNumber;
+    document.getElementById('atomic-weight').textContent = atomicWeight;
+
+    // Adiciona a descrição do elemento
+    const description = elementDescriptions[elementName] || "Descrição não disponível.";
+    document.getElementById('element-description').textContent = description;
+    
+    // Exibe o modal
+    modal.style.display = "block";
+  });
+});
+
+// Fecha o modal quando o usuário clica no "X"
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+// Fecha o modal se o usuário clicar fora dele
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
 
         </script>
 
